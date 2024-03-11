@@ -1,9 +1,7 @@
 <?php
 // Implementación de la implementación
 interface Implementacion {
-}
-public function operacionImplementacion(): string {
-    // Code implementation here
+    public function operacionImplementacion(): string;
 }
 
 // Implementación concreta A
