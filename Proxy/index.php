@@ -3,12 +3,10 @@
 namespace RefactoringGuru\Proxy\RealWorld;
 
 /**
- * The Subject interface describes the interface of a real object.
+ * La interfaz Subject describe la interfaz de un objeto real.
  *
- * The truth is that many real apps may not have this interface clearly defined.
- * If you're in that boat, your best bet would be to extend the Proxy from one
- * of your existing application classes. If that's awkward, then extracting a
- * proper interface should be your first step.
+ * La verdad es que muchas aplicaciones reales pueden no tener esta interfaz claramente definida.
+ * Si te encuentras en esa situación, tu mejor opción sería extender el Proxy de una de tus clases de aplicación existentes. Si eso es incómodo, entonces extraer una interfaz adecuada debería ser tu primer paso.
  */
 interface Downloader
 {
@@ -16,29 +14,25 @@ interface Downloader
 }
 
 /**
- * The Real Subject does the real job, albeit not in the most efficient way.
- * When a client tries to download the same file for the second time, our
- * downloader does just that, instead of fetching the result from cache.
+ * El Real Subject hace el trabajo real, aunque no de la manera más eficiente.
+ * Cuando un cliente intenta descargar el mismo archivo por segunda vez, nuestro descargador simplemente lo hace, en lugar de obtener el resultado de la caché.
  */
 class SimpleDownloader implements Downloader
 {
     public function download(string $url): string
     {
-        echo "Downloading a file from the Internet.\n";
+        echo "Descargando un archivo de Internet.\n";
         $result = file_get_contents($url);
-        echo "Downloaded bytes: " . strlen($result) . "\n";
+        echo "Bytes descargados: " . strlen($result) . "\n";
 
         return $result;
     }
 }
 
 /**
- * The Proxy class is our attempt to make the download more efficient. It wraps
- * the real downloader object and delegates it the first download calls. The
- * result is then cached, making subsequent calls return an existing file
- * instead of downloading it again.
+ * La clase Proxy es nuestro intento de hacer la descarga más eficiente. Envuelve el objeto descargador real y delega las primeras llamadas de descarga. El resultado se almacena en caché, haciendo que las llamadas posteriores devuelvan un archivo existente en lugar de descargarlo nuevamente.
  *
- * Note that the Proxy MUST implement the same interface as the Real Subject.
+ * Nota que el Proxy DEBE implementar la misma interfaz que el Real Subject.
  */
 class CachingDownloader implements Downloader
 {
@@ -64,18 +58,17 @@ class CachingDownloader implements Downloader
             $result = $this->downloader->download($url);
             $this->cache[$url] = $result;
         } else {
-            echo "CacheProxy HIT. Retrieving result from cache.\n";
+            echo "CacheProxy HIT. Recuperando resultado de la caché.\n";
         }
         return $this->cache[$url];
     }
 }
 
 /**
- * The client code may issue several similar download requests. In this case,
- * the caching proxy saves time and traffic by serving results from cache.
+ * El código del cliente puede emitir varias solicitudes de descarga similares. En este caso,
+ * el proxy de caché ahorra tiempo y tráfico sirviendo resultados de la caché.
  *
- * The client is unaware that it works with a proxy because it works with
- * downloaders via the abstract interface.
+ * El cliente no está al tanto de que trabaja con un proxy porque trabaja con descargadores a través de la interfaz abstracta.
  */
 function clientCode(Downloader $subject)
 {
@@ -83,19 +76,19 @@ function clientCode(Downloader $subject)
 
     $result = $subject->download("http://example.com/");
 
-    // Duplicate download requests could be cached for a speed gain.
+    // Las solicitudes de descarga duplicadas podrían ser almacenadas en caché para obtener ganancias de velocidad.
 
     $result = $subject->download("http://example.com/");
 
     // ...
 }
 
-echo "Executing client code with real subject:\n";
+echo "Ejecutando el código del cliente con el sujeto real:\n";
 $realSubject = new SimpleDownloader();
 clientCode($realSubject);
 
 echo "\n";
 
-echo "Executing the same client code with a proxy:\n";
+echo "Ejecutando el mismo código del cliente con un proxy:\n";
 $proxy = new CachingDownloader($realSubject);
 clientCode($proxy);
